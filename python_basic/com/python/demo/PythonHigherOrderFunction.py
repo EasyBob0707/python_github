@@ -1,6 +1,8 @@
 #!usr/bin/env python3
 # -*- coding:utf-8 -*-
 
+from functools import reduce
+
 def add(a, b):
     return a + b
 
@@ -25,4 +27,88 @@ def add(a, b, f):
     return f(a) + f(b)
 
 print(add(-4, 3, abs))
+
+# ======================高价函数之Map/Reduce======================
+# Python内建了map()和reduce()函数。
+# 把集合中的数据转换为字符串
+print(list(map(str, [1, 2, 3, 4, 5, 6, 7, 8, 9])))
+
+# 再看reduce的用法。reduce把一个函数作用在一个序列[x1, x2, x3, ...]上，
+# 这个函数必须接收两个参数，reduce把结果继续和序列的下一个元素做累积计算，其效果就是：
+# reduce(f, [x1, x2, x3, x4]) = f(f(f(x1, x2), x3), x4)
+
+def add(a,b):
+    return a + b
+
+print(reduce(add, [1,2,3,4,5,6,7,8,9,10]))
+
+def fn(a,b):
+    return a * 10 + b
+
+print(reduce(fn, [1,2,3,4,5,6,7]))
+
+DIGITS = {'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9}
+
+def char2int(s):
+    return DIGITS[s]
+
+print(reduce(fn, map(char2int, "13579")))
+
+def str2int(s):
+    def fn(x, y):
+        return x * 10 + y
+    def char2num(s):
+        return DIGITS[s]
+    return reduce(fn, map(char2num, s))
+
+def char2num(s):
+    return DIGITS[s]
+
+# lambda表达式进一步对代码进行优化
+def str2int(s):
+    return reduce(lambda x, y: x * 10 + y, map(char2num, s))
+
+# ======================高价函数之filter======================
+
+def is_odd(x):
+    return x % 2 != 0
+# filter会作用到每一个元素上
+print(list(filter(is_odd, [1,2,3,4,5,6,7,8,9,10])))
+
+def not_empty(s):
+    return s and s.strip()
+
+print(list(filter(not_empty, ['A', '', 'B', None, 'C', '  '])))
+
+# 用filter求素数
+# 计算素数的一个方法是埃氏筛法，它的算法理解起来非常简单：
+# 首先，列出从2开始的所有自然数，构造一个序列：
+# 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...
+# 取序列的第一个数2，它一定是素数，然后用2把序列的2的倍数筛掉：
+# 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...
+# 取新序列的第一个数3，它一定是素数，然后用3把序列的3的倍数筛掉：
+# 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...
+# 取新序列的第一个数5，然后用5把序列的5的倍数筛掉：
+# 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...
+# 不断筛下去，就可以得到所有的素数。
+
+def _odd_iter():
+    n = 1
+    while True:
+        n = n + 2
+        yield n
+
+def _not_divisible(n):
+    return lambda x: x % n > 0
+
+def primes():
+    yield 2
+    it = _odd_iter() # 初始序列
+    while True:
+        n = next(it) # 返回序列的第一个数
+        yield n
+        it = filter(_not_divisible(n), it) # 构造新序列
+
+
+
 
