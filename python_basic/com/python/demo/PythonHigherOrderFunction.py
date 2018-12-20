@@ -110,5 +110,8 @@ def primes():
         it = filter(_not_divisible(n), it) # 构造新序列
 
 
+print(list(map(lambda x :True if x % 3 == 0 else False, range(100))))
+
+
 
 
